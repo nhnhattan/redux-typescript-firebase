@@ -1,24 +1,49 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from "react";
+import logo from "./logo.svg";
+import { db } from "./firebase";
+import {
+  doc,
+  getDoc,
+  getDocs,
+  collection,
+  onSnapshot,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  setDoc,
+} from "firebase/firestore";
+import { async } from "@firebase/util";
 
+import "./App.css";
+
+import { useDispatch, useSelector } from "react-redux"
+import { loadPost, depositMoney } from './redux/actions/action';
+import { stringify } from "querystring";
+type loadPostProps = () => void
 function App() {
+  const data = useSelector((state:any)=> state.posts.data)
+  const requesting = useSelector((state:any)=> state.posts.requesting)
+
+  console.log(data, requesting)
+  const dispatch: any = useDispatch()
+  useEffect(()=>{
+    dispatch(loadPost())
+    dispatch(depositMoney)
+  }, [data])
+
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <ul>
+      </ul>
+        {data.map((item: any)=> {
+          return (
+            <div>
+              <li key={item.id}>{item.name}: {item.money}</li>
+              <button onClick={()=> {dispatch(depositMoney(item.id, item.money))}}>Deposit</button>
+            </div>
+          )
+        })}
     </div>
   );
 }
